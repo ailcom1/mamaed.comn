@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>تسجيل الدخول</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            touch-action: none;
+            position: fixed;
+            width: 100vw;
+        }
+
+        .form-container {
+            background-color: white;
+            border-radius: 20px;
+            padding: 40px 20px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .form-container p.title {
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            color: #333;
+        }
+        .form input {
+            width: 90%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 25px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            color: #333;
+            text-align: right;
+            background-color: #fafafa;
+            transition: border 0.3s;
+            margin-left: auto;
+        }
+        .form input:focus {
+            border: 1px solid #00796b;
+            outline: none;
+        }
+        .form input::placeholder {
+            color: #aaa;
+        }
+        .form-btn {
+            width: 90%;
+            background-color: #00796b;
+            color: white;
+            padding: 15px;
+            border-radius: 25px;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-left: auto;
+            transition: background-color 0.3s ease;
+        }
+        .form-btn:hover {
+            background-color: #005f56;
+        }
+        .page-link {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .sign-up-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .sign-up-link {
+            color: #00796b;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .sign-up-link:hover {
+            text-decoration: underline;
+        }
+        .buttons-container {
+            margin-top: 20px;
+        }
+        .google-login-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+            border-radius: 25px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            width: 90%;
+            margin-left: auto;
+            border: 1px solid #ccc;
+            background-color: white;
+            color: black;
+        }
+        .google-login-button:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .gmail-icon {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+        }
+        .gmail-icon img {
+            width: 18px;
+        }
+        /* رسالة الخطأ */
+        .error-message {
+            color: red;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- شاشة تسجيل الدخول -->
+<div class="form-container">
+    <p class="title">مرحبًا بعودتك</p>
+    <form class="form">
+        <input type="email" placeholder="بريد إلكتروني" required>
+        <input type="password" placeholder="كلمة المرور" required>
+        <p class="page-link"><a href="#">هل نسيت كلمة السر؟</a></p>
+        <button class="form-btn">تسجيل الدخول</button>
+    </form>
+    <p class="sign-up-label">ليس لديك حساب؟ <a href="#" class="sign-up-link">قم بالتسجيل</a></p>
+    <div class="buttons-container">
+        <div id="google-login-button" class="google-login-button">
+            <span class="gmail-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Gmail_Icon.png" alt="Gmail"></span> تسجيل الدخول باستخدام Gmail
+        </div>
+    </div>
+    <p id="error-message" class="error-message" style="display: none;"></p> <!-- رسالة الخطأ -->
+</div>
+
+<script type="module">
+  // استيراد Firebase SDK
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+  // إعداد Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyBp6q2iITFblRbXAFmlskdaWqfq8NIRfT4",
+    authDomain: "moayad-carpets.firebaseapp.com",
+    databaseURL: "https://moayad-carpets-default-rtdb.firebaseio.com",
+    projectId: "moayad-carpets",
+    storageBucket: "moayad-carpets.appspot.com",
+    messagingSenderId: "657387251960",
+    appId: "1:657387251960:web:af9757e18400289b3f330d",
+    measurementId: "G-4WEBDQTFHK"
+  };
+
+  // تهيئة Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+  const db = getFirestore(app);
+
+  // وظيفة تسجيل الدخول باستخدام Google
+  async function googleLogin() {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      console.log("User signed in with Google:", user);
+
+      // حفظ معلومات المستخدم في Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        name: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        uid: user.uid
+      });
+      console.log("User info saved in Firestore");
+    } catch (error) {
+      console.error("Error during Google sign-in:", error);
+
+      // عرض رسالة خطأ للمستخدم
+      const errorMessageElement = document.getElementById("error-message");
+      errorMessageElement.style.display = "block";
+      errorMessageElement.textContent = "حدث خطأ أثناء تسجيل الدخول باستخدام Google. حاول مرة أخرى.";
+    }
+  }
+
+  // ربط زر تسجيل الدخول بوظيفة Google Login
+  document.getElementById('google-login-button').addEventListener('click', googleLogin);
+</script>
+
+</body>
+</html>
